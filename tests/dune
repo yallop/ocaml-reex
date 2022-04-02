@@ -1,0 +1,23 @@
+(test
+ (name test_match)
+ (modules test_match)
+ (modes native)
+ (libraries regex_generator dynlink ounit2 reex_match regenerate metaocaml))
+
+(test
+ (name test_printer_parser)
+ (modules test_printer_parser)
+ (modes native)
+ (libraries regex_generator ounit2 reex regenerate))
+
+(test
+ (name test_lexer)
+ (modules test_lexer)
+ (modes native)
+ (libraries dynlink ounit2 leex metaocaml))
+
+(library
+ (name regex_generator)
+ (modules regex_generator)
+ (modes native)
+ (libraries reex regenerate))

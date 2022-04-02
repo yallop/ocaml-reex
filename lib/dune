@@ -1,0 +1,20 @@
+(library
+ (public_name reex)
+ (libraries charset)
+ (modules reex_types reex_parse reex_print reex)
+ (preprocess (pps ppx_deriving.std))
+ (synopsis "Regular expression library for MetaOCaml"))
+
+(library
+ (public_name reex_match)
+ (libraries metaocaml charset charmatch letrec reex)
+ (modules reex_deriv reex_match)
+ (flags (:standard "-open" "Codelib"))
+ (synopsis "Regular expression library for MetaOCaml"))
+
+(library
+ (name leex)
+ (libraries metaocaml reex_match reex)
+ (modules leex)
+ (flags (:standard "-open" "Codelib"))
+ (synopsis "Lexer library for MetaOCaml"))
