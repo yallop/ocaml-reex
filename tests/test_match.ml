@@ -8,7 +8,7 @@
 open OUnit2
 open Reex
 
-let matches_ r = .< fun s -> .~(Reex_match.match_  .<0>. .<s>. [r,fun _ i -> .<.~i = String.length s>.] ~otherwise: .<false>.) >.
+let matches_ r = .< fun s -> .~(Reex_match.match_  .<0>. .<s>. [r,fun _ ~index ~len _ -> .<.~index = .~len>.] ~otherwise: .<false>.) >.
 let rec repeat n x = if n = 0 then epsilon else x >>> repeat (pred n) x
 
 

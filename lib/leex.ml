@@ -16,7 +16,7 @@ let compile cases =
           (List.rev @@ fst @@ List.fold_left
             (fun (cases, seen) (Case (lhs, rhs)) ->
               let lhs' = lhs <&> not seen in
-              let rhs' _ i = match rhs .<String.sub s start (.~i - start) >. with
+              let rhs' _ ~index:i ~len:_ _ = match rhs .<String.sub s start (.~i - start) >. with
                 | Skip     -> .< lex ~start:.~i s >.
                 | Error s  -> .< failwith s >.
                 | Return v -> .< (.~v, .~i) >. in

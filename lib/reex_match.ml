@@ -60,19 +60,19 @@ let char_match options s i len cases ~eof =
     options s i len cases ~eof
 
 let matchk_ ?(options=default_options) ?(otherwise = .<failwith "no match">.) self indexes =
-  .< fun ~start ~index:i ~len s -> 
+  .< fun start ~index:i ~len s -> 
     .~(let eof = match List.find (fun (x,_) -> nullable x) indexes with
          | exception Not_found -> otherwise
-         | (_,rhs) -> (rhs .<start>. .<i>.) in
+         | (_,rhs) -> (rhs .<start>. ~index:.<i>. ~len:.<len>. .<s>.) in
        char_match options .<s>. .<i>. .<len>. ~eof @@ charsetset_filtermap
            (fun ss -> match Charset.choose_opt ss with
                       | None -> None
                       | Some c'' -> let indexes' = deriv_all c'' indexes in
                                     Some (ss, if all_empty indexes' then eof
-                                              else .< .~(self indexes') ~start ~index:(i + 1) ~len s >.))
+                                              else .< .~(self indexes') start ~index:(i + 1) ~len s >.))
            (capproxes (List.map fst indexes))) >.
 
 let match_ ?options i x ?(otherwise = .<failwith "no match">.) cases =
   let equal = List.for_all2 (fun (x,_) (y,_) -> Reex.equal x y) in
   Letrec.letrec ~equal (matchk_ ?options ~otherwise)
-    (fun self -> .< .~(self cases) ~start:.~i ~index:.~i ~len:(String.length .~x) .~x >.)
+    (fun self -> .< .~(self cases) .~i ~index:.~i ~len:(String.length .~x) .~x >.)
