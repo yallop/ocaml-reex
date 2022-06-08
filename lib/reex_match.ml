@@ -59,20 +59,26 @@ let char_match options s i len cases ~eof =
   (if options.null_optimization then char_match_index' else char_match_index)
     options s i len cases ~eof
 
-let matchk_ ?(options=default_options) ?(otherwise = .<failwith "no match">.) self indexes =
-  .< fun start ~index:i ~len s -> 
+let matchk_ ?(options=default_options) self (indexes, fallback) =
+  .< fun start ~index:i ~prev ~len s -> 
     .~(let eof = match List.find (fun (x,_) -> nullable x) indexes with
-         | exception Not_found -> otherwise
+         | exception Not_found -> (fallback .<start>. ~index:.<prev>. ~len:.<len>. .<s>.)
          | (_,rhs) -> (rhs .<start>. ~index:.<i>. ~len:.<len>. .<s>.) in
        char_match options .<s>. .<i>. .<len>. ~eof @@ charsetset_filtermap
            (fun ss -> match Charset.choose_opt ss with
                       | None -> None
                       | Some c'' -> let indexes' = deriv_all c'' indexes in
+                                    let prev, fallback = (* Do we have a new match? *)
+                                      match List.find (fun (x,_) -> nullable x) indexes' with
+                                      | exception Not_found -> .<prev>., fallback
+                                      | (_, rhs) -> .< i+1 >., rhs
+                                    in
                                     Some (ss, if all_empty indexes' then eof
-                                              else .< .~(self indexes') start ~index:(i + 1) ~len s >.))
+                                              else .< .~(self (indexes', fallback)) start ~index:(i + 1) ~prev:.~prev ~len s >.))
            (capproxes (List.map fst indexes))) >.
 
-let match_ ?options i x ?(otherwise = .<failwith "no match">.) cases =
-  let equal = List.for_all2 (fun (x,_) (y,_) -> Reex.equal x y) in
-  Letrec.letrec ~equal (matchk_ ?options ~otherwise)
-    (fun self -> .< .~(self cases) .~i ~index:.~i ~len:(String.length .~x) .~x >.)
+let match_ ?options i x  ?(otherwise = .<failwith "no match" >.) cases =
+  let fallback _ ~index:_ ~len:_ _ = otherwise in
+  let equal (xs, fx) (ys, fy) = List.for_all2 (fun (x,_) (y,_) -> Reex.equal x y) xs ys && fx == fy in
+  Letrec.letrec ~equal (matchk_ ?options)
+    (fun self -> .< .~(self (cases, fallback)) .~i ~index:.~i ~prev:0 ~len:(String.length .~x) .~x >.)
