@@ -27,6 +27,6 @@ val match_ : ?options:options ->
      indexes of the matched substring. *)
     
 val matchk_ : ?options:options ->
-              ?otherwise:'a code -> ((t * ('b code -> index:int code -> len:int code -> string code -> 'a code)) list ->
-             ('b -> index:int -> len:int -> string -> 'a) code as 'k) -> 'k
+              (((Reex.t * (('a code -> index:int code -> len:int code -> string code -> 'b code) as 'k)) list * 'k ->
+                ('a -> index:int -> prev:int -> len:int -> string -> 'b) code) as 'r) -> 'r
 (** [matchk_] is a variant of [match_] in continuation passing style *)

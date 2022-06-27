@@ -9,6 +9,9 @@ open OUnit2
 open Reex
 
 let matches_ r = .< fun s -> .~(Reex_match.match_  .<0>. .<s>. [r,fun _ ~index ~len _ -> .<.~index = .~len>.] ~otherwise: .<false>.) >.
+let matchn rs = .< fun s -> .~(Reex_match.match_  .<0>. .<s>. 
+                                 (List.mapi (fun i r -> (r, fun _ ~index ~len:_ s -> .<(i, String.sub .~s 0 .~index)>.)) rs)
+                                   ~otherwise: .<(-1, "")>.) >.
 let rec repeat n x = if n = 0 then epsilon else x >>> repeat (pred n) x
 
 
@@ -44,6 +47,18 @@ let test_basics _ =
   end
 
 
+let test_longest_match _ =
+  let case = Runnative.run @@ matchn [regex "aa"; regex "a*b"] in
+  begin
+    assert_equal (0,"aa") (case "aa");
+    assert_equal (0,"aa") (case "aac");
+    assert_equal (0,"aa") (case "aaaaac");
+    assert_equal (1,"aab") (case "aab");
+    assert_equal (1,"ab") (case "abc");
+    assert_equal (1,"b") (case "baa");
+  end
+
+
 let test_with_regenerate _ =
   (* (1) generate random regular expressions
      (2) generate random test cases for the regular expressions *)
@@ -62,7 +77,8 @@ let test_with_regenerate _ =
 
 let suite = "Match tests" >::: [
       "basics"     >:: test_basics;
-      "regenerate" >:: test_with_regenerate
+      "longest   " >:: test_longest_match;
+      (* "regenerate" >:: test_with_regenerate; *)
     ]
 
 
