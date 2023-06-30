@@ -5,7 +5,7 @@ A staged regular expression library for MetaOCaml, based on ["Regular-expression
 1. Install the [BER MetaOCaml][ber-metaocaml] compiler using [OPAM][opam]:
 
    ```
-   opam switch 4.11.1+BER
+   opam switch 4.14.1+BER
    eval $(opam env)
    ```
 
