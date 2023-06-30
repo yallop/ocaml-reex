@@ -14,7 +14,7 @@ build: [
   ["dune" "runtest" "-p" name "-j" jobs] {with-test}
 ]
 depends: [
-   "ocaml-variants" {= "4.11.1+BER" }
+   "ocaml-variants" {= "4.11.1+BER" | = "4.14.1+BER"}
    "dune"
    "reex"
    "letrec"
